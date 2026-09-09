@@ -1,0 +1,1135 @@
+/* =====================================================================
+   Cristiano Ronaldo — hoja de estilos
+   Organización:
+   1. Variables y reinicio
+   2. Utilidades y accesibilidad
+   3. Cabecera y navegación
+   4. Secciones genéricas
+   5. Portada (hero)
+   6. Biografía
+   7. Trayectoria (línea de tiempo)
+   8. Estadísticas
+   9. Galería y visor
+   10. Pie de página
+   11. Responsive y preferencias del usuario
+   ===================================================================== */
+
+/* ---------- 1. Variables y reinicio ---------- */
+:root {
+  --azul-noche: #0b1020;
+  --azul-profundo: #121a33;
+  --azul-suave: #1b2547;
+  --blanco: #ffffff;
+  --texto: #e8ecf7;
+  --texto-tenue: #a9b4d0;
+  --oro: #f4c85f;
+  --oro-oscuro: #c9992f;
+  --verde: #2fd1a5;
+  --borde: rgba(255, 255, 255, 0.12);
+
+  --ancho-max: 1140px;
+  --radio: 14px;
+  --radio-sm: 8px;
+  --sombra: 0 18px 40px rgba(0, 0, 0, 0.35);
+  --transicion: 220ms ease;
+
+  --fuente: "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --fuente-titulo: "Georgia", "Times New Roman", serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem; /* deja hueco para la cabecera fija */
+}
+
+body {
+  margin: 0;
+  font-family: var(--fuente);
+  font-size: clamp(1rem, 0.96rem + 0.2vw, 1.075rem);
+  line-height: 1.7;
+  color: var(--texto);
+  background-color: var(--azul-noche);
+  background-image:
+    radial-gradient(circle at 12% -10%, rgba(244, 200, 95, 0.16), transparent 45%),
+    radial-gradient(circle at 88% 8%, rgba(47, 209, 165, 0.12), transparent 42%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--fuente-titulo);
+  line-height: 1.2;
+  margin: 0 0 0.6em;
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: clamp(2.4rem, 1.6rem + 3.6vw, 4.2rem); }
+h2 { font-size: clamp(1.8rem, 1.4rem + 1.8vw, 2.6rem); }
+h3 { font-size: clamp(1.15rem, 1.05rem + 0.5vw, 1.4rem); }
+
+p { margin: 0 0 1rem; }
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: var(--oro);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color var(--transicion);
+}
+
+a:hover { color: var(--blanco); }
+
+ul, ol { padding-left: 1.1rem; }
+
+/* ---------- 2. Utilidades y accesibilidad ---------- */
+.contenedor {
+  width: min(100% - 2.5rem, var(--ancho-max));
+  margin-inline: auto;
+}
+
+.visualmente-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Enlace para saltar directamente al contenido */
+.salto-contenido {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -140%);
+  z-index: 200;
+  padding: 0.75rem 1.25rem;
+  background: var(--oro);
+  color: var(--azul-noche);
+  font-weight: 700;
+  border-radius: 0 0 var(--radio-sm) var(--radio-sm);
+  text-decoration: none;
+  transition: transform var(--transicion);
+}
+
+.salto-contenido:focus {
+  transform: translate(-50%, 0);
+  color: var(--azul-noche);
+}
+
+/* Foco visible y coherente en todo el sitio */
+:focus-visible {
+  outline: 3px solid var(--verde);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Botones base */
+.boton {
+  display: inline-block;
+  padding: 0.85rem 1.6rem;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform var(--transicion), background-color var(--transicion),
+              color var(--transicion), border-color var(--transicion);
+}
+
+.boton--primario {
+  background: linear-gradient(135deg, var(--oro), var(--oro-oscuro));
+  color: var(--azul-noche);
+  box-shadow: 0 10px 24px rgba(244, 200, 95, 0.25);
+}
+
+.boton--secundario {
+  border: 2px solid var(--borde);
+  color: var(--texto);
+}
+
+.boton:hover {
+  transform: translateY(-2px);
+}
+
+/* A1: fija el texto oscuro en hover; si no, la regla global a:hover lo pondría
+   blanco sobre el degradado dorado y el contraste bajaría a ~1,6:1 */
+.boton--primario:hover,
+.boton--primario:focus-visible {
+  color: var(--azul-noche);
+}
+
+.boton--secundario:hover {
+  border-color: var(--oro);
+  color: var(--oro);
+}
+
+/* ---------- 3. Cabecera y navegación ---------- */
+.cabecera {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(11, 16, 32, 0.82);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--borde);
+}
+
+.cabecera__interior {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.85rem;
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: var(--texto);
+}
+
+.marca__dorsal {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--oro), var(--oro-oscuro));
+  color: var(--azul-noche);
+  font-family: var(--fuente-titulo);
+  font-size: 1.4rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.marca__texto {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.marca__texto small {
+  color: var(--texto-tenue);
+  font-size: 0.75rem;
+}
+
+.navegacion__lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navegacion__lista a {
+  display: block;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radio-sm);
+  color: var(--texto);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: background-color var(--transicion), color var(--transicion);
+}
+
+.navegacion__lista a:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--oro);
+}
+
+/* Enlace de la sección visible en pantalla (lo marca script.js) */
+.navegacion__lista a[aria-current="true"] {
+  background: rgba(244, 200, 95, 0.16);
+  color: var(--oro);
+  font-weight: 700;
+}
+
+.menu-boton {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  background: transparent;
+  color: var(--texto);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-sm);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.menu-boton__icono,
+.menu-boton__icono::before,
+.menu-boton__icono::after {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: currentColor;
+  transition: transform var(--transicion), opacity var(--transicion);
+}
+
+.menu-boton__icono {
+  position: relative;
+}
+
+.menu-boton__icono::before,
+.menu-boton__icono::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+
+.menu-boton__icono::before { top: -6px; }
+.menu-boton__icono::after { top: 6px; }
+
+.menu-boton[aria-expanded="true"] .menu-boton__icono { background: transparent; }
+.menu-boton[aria-expanded="true"] .menu-boton__icono::before { transform: translateY(6px) rotate(45deg); }
+.menu-boton[aria-expanded="true"] .menu-boton__icono::after { transform: translateY(-6px) rotate(-45deg); }
+
+/* ---------- 4. Secciones genéricas ---------- */
+.seccion {
+  padding-block: clamp(3rem, 2rem + 5vw, 6rem);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.seccion--alterna {
+  background: rgba(18, 26, 51, 0.55);
+}
+
+.seccion__etiqueta {
+  margin: 0 0 0.35rem;
+  color: var(--verde);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.seccion__intro {
+  max-width: 60ch;
+  color: var(--texto-tenue);
+}
+
+.nota {
+  margin-top: 1.25rem;
+  padding: 0.9rem 1.1rem;
+  border-left: 3px solid var(--verde);
+  background: rgba(47, 209, 165, 0.08);
+  border-radius: 0 var(--radio-sm) var(--radio-sm) 0;
+  color: var(--texto-tenue);
+  font-size: 0.92rem;
+}
+
+/* ---------- 5. Portada (hero) ---------- */
+.seccion--hero {
+  padding-block: clamp(3rem, 2rem + 6vw, 7rem);
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: clamp(2rem, 4vw, 4rem);
+  align-items: center;
+}
+
+.hero__antetitulo {
+  color: var(--oro);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.hero h1 {
+  background: linear-gradient(120deg, var(--blanco) 25%, var(--oro));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero__descripcion {
+  max-width: 56ch;
+  color: var(--texto-tenue);
+  font-size: 1.05rem;
+}
+
+.hero__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-top: 1.75rem;
+}
+
+.hero__figura {
+  margin: 0;
+  border-radius: var(--radio);
+  overflow: hidden;
+  background: var(--azul-suave);
+  box-shadow: var(--sombra);
+  border: 1px solid var(--borde);
+}
+
+.hero__figura img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.hero__figura figcaption {
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  color: var(--texto-tenue);
+}
+
+/* ---------- 6. Biografía ---------- */
+.biografia {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  align-items: start;
+}
+
+.biografia__texto p {
+  max-width: 68ch;
+}
+
+.biografia__foto {
+  margin: 1.75rem 0 0;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  overflow: hidden;
+  background: var(--azul-profundo);
+}
+
+.biografia__foto img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.biografia__foto figcaption {
+  padding: 0.75rem 1rem;
+  color: var(--texto-tenue);
+  font-size: 0.85rem;
+}
+
+.ficha {
+  padding: 1.5rem;
+  background: var(--azul-profundo);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  position: sticky;
+  top: 6rem;
+}
+
+.ficha h3 {
+  margin-top: 0;
+  color: var(--oro);
+}
+
+.ficha__lista {
+  margin: 0;
+}
+
+.ficha__fila {
+  padding-block: 0.6rem;
+  border-top: 1px solid var(--borde);
+}
+
+.ficha__fila:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.ficha__fila dt {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--texto-tenue);
+}
+
+.ficha__fila dd {
+  margin: 0.15rem 0 0;
+  font-weight: 600;
+}
+
+/* ---------- 7. Trayectoria ---------- */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.75rem 0 0.75rem;
+}
+
+.filtro {
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--texto);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color var(--transicion), color var(--transicion),
+              border-color var(--transicion);
+}
+
+.filtro:hover {
+  border-color: var(--oro);
+  color: var(--oro);
+}
+
+.filtro--activo {
+  background: var(--oro);
+  border-color: var(--oro);
+  color: var(--azul-noche);
+  font-weight: 700;
+}
+
+/* A2: sin esta regla, .filtro:hover pondría texto dorado sobre fondo dorado
+   (1:1) en el filtro seleccionado. Mantiene texto oscuro y contraste ~7,3:1 */
+.filtro--activo:hover,
+.filtro--activo:focus-visible {
+  color: var(--azul-noche);
+  background: var(--oro-oscuro);
+  border-color: var(--oro-oscuro);
+}
+
+.filtros__resultado {
+  color: var(--texto-tenue);
+  font-size: 0.88rem;
+  margin-bottom: 2rem;
+}
+
+.linea-tiempo {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 1.75rem;
+  position: relative;
+}
+
+.linea-tiempo::before {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  left: 0.4rem;
+  width: 2px;
+  background: linear-gradient(var(--oro), rgba(244, 200, 95, 0.1));
+}
+
+.hito {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.hito::before {
+  content: "";
+  position: absolute;
+  left: -1.55rem;
+  top: 1.35rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  background: var(--azul-noche);
+  border: 2px solid var(--oro);
+  transition: background-color var(--transicion);
+}
+
+.hito--abierto::before {
+  background: var(--oro);
+}
+
+.hito[hidden] {
+  display: none;
+}
+
+.hito article {
+  background: var(--azul-profundo);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  overflow: hidden;
+}
+
+.hito__titulo {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.hito__boton {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1.1rem 1.25rem;
+  background: transparent;
+  border: 0;
+  color: var(--texto);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--transicion);
+}
+
+.hito__boton:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* A3: el artículo contenedor tiene overflow:hidden y recortaría el contorno
+   de foco exterior. Se dibuja hacia dentro y se refuerza con fondo propio */
+.hito__boton:focus-visible {
+  outline-offset: -3px;
+  background: rgba(47, 209, 165, 0.14);
+}
+
+.hito__anios {
+  flex-shrink: 0;
+  min-width: 8.5rem;
+  color: var(--oro);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.hito__club {
+  flex-grow: 1;
+  font-family: var(--fuente-titulo);
+  font-size: 1.2rem;
+}
+
+.hito__icono {
+  flex-shrink: 0;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-right: 2px solid var(--texto-tenue);
+  border-bottom: 2px solid var(--texto-tenue);
+  transform: rotate(45deg);
+  transition: transform var(--transicion);
+}
+
+.hito__boton[aria-expanded="true"] .hito__icono {
+  transform: rotate(-135deg);
+}
+
+.hito__detalle {
+  padding: 0 1.25rem 1.25rem;
+  border-top: 1px solid var(--borde);
+}
+
+.hito__detalle p {
+  margin-top: 1rem;
+  color: var(--texto-tenue);
+  max-width: 70ch;
+}
+
+.hito__datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.hito__datos li {
+  padding: 0.7rem 0.9rem;
+  background: var(--azul-suave);
+  border-radius: var(--radio-sm);
+}
+
+.hito__datos span {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--texto-tenue);
+}
+
+.hito__datos strong {
+  font-size: 0.98rem;
+}
+
+/* ---------- 8. Estadísticas ---------- */
+.tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.1rem;
+  list-style: none;
+  margin: 2rem 0 3rem;
+  padding: 0;
+}
+
+.tarjeta {
+  padding: 1.5rem;
+  background: var(--azul-profundo);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  transition: transform var(--transicion), border-color var(--transicion);
+}
+
+.tarjeta:hover {
+  transform: translateY(-4px);
+  border-color: rgba(244, 200, 95, 0.5);
+}
+
+.tarjeta__numero {
+  margin: 0;
+  font-family: var(--fuente-titulo);
+  font-size: clamp(2.2rem, 1.8rem + 1.6vw, 3rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--oro);
+  font-variant-numeric: tabular-nums;
+}
+
+.tarjeta__titulo {
+  margin: 0.6rem 0 0.4rem;
+  font-size: 1.05rem;
+}
+
+.tarjeta__texto {
+  margin: 0;
+  color: var(--texto-tenue);
+  font-size: 0.92rem;
+}
+
+.tabla__titulo {
+  margin-top: 2.5rem;
+}
+
+.tabla-envoltorio {
+  overflow-x: auto;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  background: var(--azul-profundo);
+}
+
+.tabla {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.tabla caption {
+  padding: 1rem 1.1rem 0;
+  text-align: left;
+  color: var(--texto-tenue);
+  font-size: 0.88rem;
+}
+
+.tabla th,
+.tabla td {
+  padding: 0.8rem 1.1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--borde);
+}
+
+.tabla thead th {
+  color: var(--oro);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.tabla tbody tr:last-child th,
+.tabla tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.tabla tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ---------- 9. Galería y visor ---------- */
+.galeria {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+}
+
+.galeria__item {
+  margin: 0;
+  background: var(--azul-profundo);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  overflow: hidden;
+  height: 100%;
+}
+
+.galeria__boton {
+  display: block;
+  position: relative;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+/* A3: .galeria__item recorta el contorno exterior; se traza hacia dentro.
+   El oscurecimiento, la ampliación y el rótulo «Ampliar» son señal añadida */
+.galeria__boton:focus-visible {
+  outline-offset: -3px;
+}
+
+.galeria__boton img {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  transition: transform 400ms ease, filter var(--transicion);
+}
+
+/* Las fotos verticales se recortan por la parte alta para no perder el motivo */
+.galeria__boton--vertical img {
+  object-position: center 15%;
+}
+
+/* Fotos muy verticales (retratos completos): se encuadra por arriba */
+.galeria__boton--alto img {
+  object-position: center top;
+}
+
+.galeria__boton:hover img,
+.galeria__boton:focus-visible img {
+  transform: scale(1.05);
+  filter: brightness(0.75);
+}
+
+.galeria__lupa {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 0.5rem;
+  background: rgba(11, 16, 32, 0.85);
+  color: var(--oro);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity var(--transicion);
+}
+
+.galeria__boton:hover .galeria__lupa,
+.galeria__boton:focus-visible .galeria__lupa {
+  opacity: 1;
+}
+
+.galeria__item figcaption {
+  padding: 0.85rem 1rem;
+  color: var(--texto-tenue);
+  font-size: 0.9rem;
+}
+
+/* Visor a pantalla completa */
+.visor {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.visor[hidden] {
+  display: none;
+}
+
+.visor__fondo {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 7, 16, 0.88);
+  backdrop-filter: blur(4px);
+}
+
+.visor__contenido {
+  position: relative;
+  margin: 0;
+  max-width: min(900px, 100%);
+  background: var(--azul-profundo);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  overflow: hidden;
+  box-shadow: var(--sombra);
+}
+
+.visor__contenido img {
+  width: 100%;
+  max-height: 72vh;
+  object-fit: contain;
+  background: #000;
+}
+
+.visor__contenido figcaption {
+  padding: 1rem 1.15rem;
+  color: var(--texto-tenue);
+  font-size: 0.9rem;
+}
+
+.visor__cerrar {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 1;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--borde);
+  border-radius: 50%;
+  background: rgba(11, 16, 32, 0.85);
+  color: var(--texto);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--transicion), color var(--transicion);
+}
+
+.visor__cerrar:hover {
+  background: var(--oro);
+  color: var(--azul-noche);
+}
+
+/* Bloquea el desplazamiento del fondo mientras el visor está abierto */
+body.sin-scroll {
+  overflow: hidden;
+}
+
+/* ---------- 10. Pie de página ---------- */
+.pie {
+  background: #070b17;
+  border-top: 1px solid var(--borde);
+  padding-block: 3rem 1.5rem;
+}
+
+.pie__interior {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2rem;
+}
+
+.pie__titulo {
+  font-size: 1rem;
+  color: var(--oro);
+  margin-bottom: 0.75rem;
+}
+
+.pie p,
+.pie li {
+  color: var(--texto-tenue);
+  font-size: 0.9rem;
+}
+
+.pie__creditos,
+.pie__enlaces {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pie__creditos li {
+  margin-bottom: 0.5rem;
+}
+
+.pie__enlaces a {
+  display: inline-block;
+  padding: 0.2rem 0;
+  color: var(--texto);
+  text-decoration: none;
+}
+
+.pie__enlaces a:hover {
+  color: var(--oro);
+  text-decoration: underline;
+}
+
+.pie__legal {
+  margin: 2.5rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--borde);
+  text-align: center;
+}
+
+/* Enlaces externos de la sección de fuentes */
+.enlaces {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.enlaces li {
+  padding: 1.25rem;
+  background: var(--azul-profundo);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+
+.enlaces a {
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.enlaces a:hover {
+  text-decoration: underline;
+}
+
+.enlaces p {
+  margin: 0.4rem 0 0;
+  color: var(--texto-tenue);
+  font-size: 0.9rem;
+}
+
+.enlaces__externo {
+  font-size: 0.85em;
+}
+
+kbd {
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--borde);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--azul-suave);
+  font-family: ui-monospace, "Consolas", monospace;
+  font-size: 0.85em;
+}
+
+/* ---------- 11. Resiliencia sin JavaScript ---------- */
+/* M2: si el script no carga, el menú móvil y los detalles de trayectoria
+   quedarían inoperantes. Sin la clase .js (que añade un script en <head>)
+   se muestra todo el contenido y se ocultan los controles que no funcionan. */
+html:not(.js) .hito__detalle[hidden] {
+  display: block;
+}
+
+html:not(.js) .hito__icono {
+  display: none;
+}
+
+html:not(.js) .hito__boton {
+  cursor: default;
+}
+
+/* ---------- 12. Responsive y preferencias ---------- */
+@media (max-width: 900px) {
+  .hero,
+  .biografia {
+    grid-template-columns: 1fr;
+  }
+
+  .ficha {
+    position: static;
+  }
+
+  .hero__figura {
+    order: -1;
+  }
+}
+
+@media (max-width: 760px) {
+  /* M2: el botón y el colapso solo se activan si JavaScript está disponible.
+     Sin la clase .js la navegación permanece visible y utilizable. */
+  html.js .menu-boton {
+    display: inline-flex;
+  }
+
+  .navegacion {
+    width: 100%;
+  }
+
+  html.js .navegacion {
+    display: none;
+  }
+
+  html.js .navegacion.navegacion--abierta {
+    display: block;
+  }
+
+  .cabecera__interior {
+    flex-wrap: wrap;
+  }
+
+  .navegacion__lista {
+    flex-direction: column;
+    gap: 0;
+    padding-bottom: 0.75rem;
+  }
+
+  .navegacion__lista a {
+    padding: 0.7rem 0.85rem;
+    border-bottom: 1px solid var(--borde);
+    border-radius: 0;
+  }
+
+  .hito__boton {
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
+  }
+
+  .hito__anios {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .hito__club {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero__acciones .boton {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Respeta la preferencia de reducir movimiento del sistema operativo */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Ajustes para impresión: fondo claro y sin elementos de navegación */
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .cabecera,
+  .menu-boton,
+  .filtros,
+  .visor {
+    display: none !important;
+  }
+}

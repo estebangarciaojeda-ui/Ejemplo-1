@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Observabilidad — Cristiano Ronaldo</title>
+  <meta name="description" content="Dashboard de observabilidad local. Registra eventos, errores y métricas del sitio en localStorage.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>📊</text></svg>">
+  <link rel="stylesheet" href="observabilidad.css">
+</head>
+<body>
+  <div class="dashboard">
+    <header>
+      <h1>Observabilidad CR7</h1>
+      <p>Dashboard local de eventos, errores y métricas. Todos los datos se almacenan en localStorage.</p>
+    </header>
+
+    <section class="controles" role="group" aria-label="Controles del dashboard">
+      <button class="boton boton--primario" id="btn-actualizar" type="button">
+        🔄 Actualizar
+      </button>
+      <button class="boton" id="btn-demo" type="button">
+        ⚡ Evento demo
+      </button>
+      <button class="boton" id="btn-descargar" type="button">
+        ⬇️ Descargar JSON
+      </button>
+      <button class="boton boton--peligro" id="btn-limpiar" type="button">
+        🗑️ Limpiar datos
+      </button>
+    </section>
+
+    <!-- RESUMEN GENERAL -->
+    <section class="seccion">
+      <h2 class="seccion__titulo">Resumen</h2>
+      <div class="estado-grid" id="resumen-grid">
+        <div class="estado-card">
+          <div class="estado-card__titulo">Tiempo desde inicio</div>
+          <div class="estado-card__valor" id="tiempo-sesion">—</div>
+          <div class="estado-card__subtitulo">segundos</div>
+        </div>
+        <div class="estado-card">
+          <div class="estado-card__titulo">Estado conexión</div>
+          <div class="estado-card__valor">
+            <span class="indicador" id="indicador-online"></span>
+            <span id="estado-online">—</span>
+          </div>
+        </div>
+        <div class="estado-card">
+          <div class="estado-card__titulo">Errores capturados</div>
+          <div class="estado-card__valor" id="count-errores">0</div>
+        </div>
+        <div class="estado-card">
+          <div class="estado-card__titulo">Recursos fallidos</div>
+          <div class="estado-card__valor" id="count-recursos">0</div>
+        </div>
+        <div class="estado-card">
+          <div class="estado-card__titulo">Interacciones</div>
+          <div class="estado-card__valor" id="count-interacciones">0</div>
+        </div>
+        <div class="estado-card">
+          <div class="estado-card__titulo">Cambios visibilidad</div>
+          <div class="estado-card__valor" id="count-visibilidad">0</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ENTORNO -->
+    <section class="seccion">
+      <h2 class="seccion__titulo">Entorno</h2>
+      <table class="datos-tabla">
+        <thead>
+          <tr>
+            <th scope="col">Propiedad</th>
+            <th scope="col">Valor</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-entorno">
+          <tr><td colspan="2" style="text-align:center; color: var(--texto-tenue);">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- PERFORMANCE -->
+    <section class="seccion">
+      <h2 class="seccion__titulo">Performance</h2>
+      <table class="datos-tabla">
+        <thead>
+          <tr>
+            <th scope="col">Métrica</th>
+            <th scope="col">Valor (ms)</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-performance">
+          <tr><td colspan="2" style="text-align:center; color: var(--texto-tenue);">No disponible</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- RECURSOS CAPTURADOS -->
+    <section class="seccion">
+      <h2 class="seccion__titulo">Recursos cargados</h2>
+      <details open>
+        <summary>Mostrar/Ocultar lista</summary>
+        <table class="datos-tabla" style="margin-top: 1rem;">
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Duración (ms)</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-recursos">
+            <tr><td colspan="3" style="text-align:center; color: var(--texto-tenue);">No disponible</td></tr>
+          </tbody>
+        </table>
+      </details>
+    </section>
+
+    <!-- ERRORES -->
+    <section class="seccion">
+      <h2 class="seccion__titulo">Errores capturados</h2>
+      <div id="lista-errores">
+        <p style="color: var(--texto-tenue); text-align: center;">Sin errores registrados.</p>
+      </div>
+    </section>
+
+    <!-- RECURSOS FALLIDOS -->
+    <section class="seccion">
+      <h2 class="seccion__titulo">Recursos fallidos</h2>
+      <div id="lista-recursos-fallidos">
+        <p style="color: var(--texto-tenue); text-align: center;">Sin errores de carga de recursos.</p>
+      </div>
+    </section>
+
+    <!-- INTERACCIONES -->
+    <section class="seccion">
+      <h2 class="seccion__titulo">Últimas interacciones (últimas 20)</h2>
+      <div id="lista-interacciones">
+        <p style="color: var(--texto-tenue); text-align: center;">Sin interacciones registradas.</p>
+      </div>
+    </section>
+
+    <!-- VISIBILIDAD -->
+    <section class="seccion">
+      <h2 class="seccion__titulo">Cambios de visibilidad</h2>
+      <div id="lista-visibilidad">
+        <p style="color: var(--texto-tenue); text-align: center;">Sin cambios registrados.</p>
+      </div>
+    </section>
+
+    <footer style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--borde); text-align: center; color: var(--texto-tenue);">
+      <p>
+        Panel de observabilidad local — sin backend, sin envío de datos.
+        <br>
+        <a href="/">Volver al sitio principal</a>
+      </p>
+    </footer>
+  </div>
+
+  <script src="observabilidad.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var btnActualizar = document.getElementById('btn-actualizar');
+      var btnDemo = document.getElementById('btn-demo');
+      var btnDescargar = document.getElementById('btn-descargar');
+      var btnLimpiar = document.getElementById('btn-limpiar');
+
+      function formatTime(ms) {
+        if (!ms) return '—';
+        var s = Math.floor((Date.now() - ms) / 1000);
+        return s + 's';
+      }
+
+      function formatTimestamp(ms) {
+        return new Date(ms).toLocaleTimeString();
+      }
+
+      function renderizar() {
+        var snapshot = window.CR7Observability.getSnapshot();
+
+        // Resumen
+        document.getElementById('tiempo-sesion').textContent = formatTime(snapshot.startTime);
+        document.getElementById('estado-online').textContent = navigator.onLine ? 'En línea' : 'Sin conexión';
+        document.getElementById('indicador-online').className = 'indicador ' + (navigator.onLine ? 'indicador--ok' : 'indicador--offline');
+        document.getElementById('count-errores').textContent = snapshot.errors.length;
+        document.getElementById('count-recursos').textContent = snapshot.resources.length;
+        document.getElementById('count-interacciones').textContent = snapshot.interactions.length;
+        document.getElementById('count-visibilidad').textContent = snapshot.pageVisibility.length;
+
+        // Entorno
+        var entornoHtml = '';
+        if (snapshot.environment.userAgent) {
+          entornoHtml += '<tr><td>User-Agent</td><td>' + escapeHtml(snapshot.environment.userAgent.substring(0, 80)) + '</td></tr>';
+        }
+        if (snapshot.environment.language) {
+          entornoHtml += '<tr><td>Idioma</td><td>' + escapeHtml(snapshot.environment.language) + '</td></tr>';
+        }
+        if (snapshot.environment.viewport) {
+          var vp = snapshot.environment.viewport;
+          entornoHtml += '<tr><td>Viewport</td><td>' + vp.width + '×' + vp.height + ' @' + vp.dpr + 'x</td></tr>';
+        }
+        if (snapshot.environment.connection) {
+          var conn = snapshot.environment.connection;
+          entornoHtml += '<tr><td>Conexión</td><td>' + conn.effectiveType + ' (rtt: ' + conn.rtt + 'ms)</td></tr>';
+        }
+        entornoHtml += '<tr><td>localStorage</td><td><span class="indicador indicador--ok"></span>Disponible</td></tr>';
+        if (snapshot.environment.apis.performance) {
+          entornoHtml += '<tr><td>Performance API</td><td><span class="indicador indicador--ok"></span>Disponible</td></tr>';
+        }
+        if (snapshot.environment.apis.serviceWorker) {
+          entornoHtml += '<tr><td>Service Worker</td><td><span class="indicador indicador--ok"></span>Disponible</td></tr>';
+        }
+        if (snapshot.environment.apis.intersectionObserver) {
+          entornoHtml += '<tr><td>Intersection Observer</td><td><span class="indicador indicador--ok"></span>Disponible</td></tr>';
+        }
+        document.getElementById('tabla-entorno').innerHTML = entornoHtml || '<tr><td colspan="2">Sin datos</td></tr>';
+
+        // Performance
+        if (snapshot.navigation.timing) {
+          var perf = snapshot.navigation.timing;
+          var perfHtml = '';
+          if (perf.loadEventEnd && perf.navigationStart) {
+            perfHtml += '<tr><td>Tiempo total de carga</td><td>' + (perf.loadEventEnd - perf.navigationStart) + '</td></tr>';
+          }
+          if (perf.domContentLoadedEventEnd && perf.navigationStart) {
+            perfHtml += '<tr><td>DOM Ready</td><td>' + (perf.domContentLoadedEventEnd - perf.navigationStart) + '</td></tr>';
+          }
+          if (perf.responseEnd && perf.fetchStart) {
+            perfHtml += '<tr><td>Tiempo de descarga HTML</td><td>' + (perf.responseEnd - perf.fetchStart) + '</td></tr>';
+          }
+          document.getElementById('tabla-performance').innerHTML = perfHtml || '<tr><td colspan="2">Sin datos de timing</td></tr>';
+        }
+
+        // Recursos
+        if (snapshot.resourceMetrics && snapshot.resourceMetrics.length) {
+          var recursosHtml = snapshot.resourceMetrics.slice(0, 20).map(function (r) {
+            return '<tr><td><span class="valor-tecnico">' + escapeHtml(r.name.substring(0, 60)) + '</span></td><td>' + r.type + '</td><td>' + Math.round(r.duration) + '</td></tr>';
+          }).join('');
+          document.getElementById('tabla-recursos').innerHTML = recursosHtml;
+        }
+
+        // Errores
+        var erroresHtml = snapshot.errors.slice(-10).reverse().map(function (e) {
+          return '<div class="evento evento--error"><span class="evento__tiempo">' + formatTimestamp(e.timestamp) + '</span><div class="evento__contenido">[' + e.type + '] ' + escapeHtml(e.message || e.reason || 'Sin detalles') + (e.source ? '\n' + e.source + ':' + e.lineno : '') + '</div></div>';
+        }).join('');
+        document.getElementById('lista-errores').innerHTML = erroresHtml || '<p style="color: var(--texto-tenue); text-align: center;">Sin errores registrados.</p>';
+
+        // Recursos fallidos
+        var fallHtml = snapshot.resources.slice(-10).reverse().map(function (r) {
+          return '<div class="evento evento--error"><span class="evento__tiempo">' + formatTimestamp(r.timestamp) + '</span><div class="evento__contenido">' + r.type.toUpperCase() + '\n' + escapeHtml(r.src) + '</div></div>';
+        }).join('');
+        document.getElementById('lista-recursos-fallidos').innerHTML = fallHtml || '<p style="color: var(--texto-tenue); text-align: center;">Sin errores de carga de recursos.</p>';
+
+        // Interacciones
+        var interHtml = snapshot.interactions.slice(-20).reverse().map(function (i) {
+          var clase = i.demo ? 'evento' : (i.type === 'click' ? 'evento' : '');
+          return '<div class="' + clase + '"><span class="evento__tiempo">' + formatTimestamp(i.timestamp) + '</span><div class="evento__contenido">[' + i.type.toUpperCase() + '] ' + (i.text ? escapeHtml(i.text) : 'interacción sin texto') + (i.url ? ' (' + escapeHtml(i.url.substring(0, 40)) + ')' : '') + '</div></div>';
+        }).join('');
+        document.getElementById('lista-interacciones').innerHTML = interHtml || '<p style="color: var(--texto-tenue); text-align: center;">Sin interacciones registradas.</p>';
+
+        // Visibilidad
+        var visHtml = snapshot.pageVisibility.slice(-10).reverse().map(function (v) {
+          return '<div class="evento"><span class="evento__tiempo">' + formatTimestamp(v.timestamp) + '</span><div class="evento__contenido">Estado: ' + (v.state === 'visible' ? '👁️ Visible' : '👻 Oculta') + '</div></div>';
+        }).join('');
+        document.getElementById('lista-visibilidad').innerHTML = visHtml || '<p style="color: var(--texto-tenue); text-align: center;">Sin cambios registrados.</p>';
+      }
+
+      function escapeHtml(text) {
+        return text.replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+
+      btnActualizar.addEventListener('click', renderizar);
+
+      btnDemo.addEventListener('click', function () {
+        window.CR7Observability.generateDemo();
+        renderizar();
+      });
+
+      btnDescargar.addEventListener('click', function () {
+        var json = window.CR7Observability.export();
+        var blob = new Blob([json], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'cr7-observability-' + new Date().toISOString().split('T')[0] + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      btnLimpiar.addEventListener('click', function () {
+        if (confirm('¿Limpiar todo el almacenamiento de observabilidad? Esta acción no se puede deshacer.')) {
+          window.CR7Observability.clearData();
+          renderizar();
+          alert('Datos limpiados.');
+        }
+      });
+
+      // Renderizar al cargar
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderizar);
+      } else {
+        renderizar();
+      }
+
+      // Auto-actualizar cada 2 segundos
+      setInterval(renderizar, 2000);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Dependencias (el sitio es estático, no debería haber)
+node_modules/
+
+# Temporales de editores
+*.swp
+*~

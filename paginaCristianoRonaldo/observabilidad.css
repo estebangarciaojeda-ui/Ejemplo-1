@@ -1,0 +1,345 @@
+/* =====================================================================
+   Observabilidad — Estilos del dashboard
+   Semántico, accesible, responsive, tema oscuro coherente con el sitio.
+   ===================================================================== */
+
+:root {
+  --azul-noche: #0b1020;
+  --azul-profundo: #121a33;
+  --azul-suave: #1b2547;
+  --blanco: #ffffff;
+  --texto: #e8ecf7;
+  --texto-tenue: #a9b4d0;
+  --oro: #f4c85f;
+  --oro-oscuro: #c9992f;
+  --verde: #2fd1a5;
+  --rojo: #ff6b6b;
+  --amarillo: #ffd93d;
+  --borde: rgba(255, 255, 255, 0.12);
+  --transicion: 220ms ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
+  font-size: clamp(0.9rem, 0.85rem + 0.3vw, 1rem);
+  line-height: 1.6;
+  color: var(--texto);
+  background-color: var(--azul-noche);
+  background-image:
+    radial-gradient(circle at 12% -10%, rgba(244, 200, 95, 0.08), transparent 45%),
+    radial-gradient(circle at 88% 8%, rgba(47, 209, 165, 0.08), transparent 42%);
+  background-attachment: fixed;
+}
+
+h1, h2, h3 {
+  line-height: 1.2;
+  margin: 0 0 0.6em;
+}
+
+h1 { font-size: clamp(1.8rem, 1.4rem + 1.2vw, 2.4rem); }
+h2 { font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.8rem); }
+h3 { font-size: clamp(1rem, 0.9rem + 0.4vw, 1.3rem); }
+
+p { margin: 0 0 0.8rem; }
+
+a {
+  color: var(--oro);
+  text-decoration: none;
+  transition: color var(--transicion);
+}
+
+a:hover { color: var(--blanco); }
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 3px solid var(--verde);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Contenedor principal ---------- */
+.dashboard {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: clamp(1rem, 2vw, 2rem);
+}
+
+header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--borde);
+}
+
+header h1 {
+  margin-bottom: 0.25rem;
+}
+
+header p {
+  color: var(--texto-tenue);
+  margin: 0;
+}
+
+/* ---------- Panel de controles ---------- */
+.controles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.boton {
+  padding: 0.7rem 1.2rem;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: var(--azul-profundo);
+  color: var(--texto);
+  font-weight: 600;
+  transition: background-color var(--transicion), border-color var(--transicion);
+}
+
+.boton:hover {
+  background: var(--azul-suave);
+  border-color: var(--oro);
+}
+
+.boton--primario {
+  background: var(--oro);
+  color: var(--azul-noche);
+  border-color: var(--oro);
+}
+
+.boton--primario:hover {
+  background: var(--oro-oscuro);
+  border-color: var(--oro-oscuro);
+}
+
+.boton--peligro {
+  border-color: var(--rojo);
+  color: var(--rojo);
+}
+
+.boton--peligro:hover {
+  background: rgba(255, 107, 107, 0.1);
+}
+
+.boton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- Secciones de datos ---------- */
+.seccion {
+  margin-bottom: 2.5rem;
+}
+
+.seccion__titulo {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--oro);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--borde);
+}
+
+.datos-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--azul-profundo);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 0.9rem;
+}
+
+.datos-tabla th,
+.datos-tabla td {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--borde);
+}
+
+.datos-tabla thead th {
+  background: var(--azul-suave);
+  font-weight: 700;
+  color: var(--oro);
+}
+
+.datos-tabla tbody tr:hover {
+  background: rgba(47, 209, 165, 0.05);
+}
+
+.datos-tabla tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.valor-tecnico {
+  font-family: "Courier New", monospace;
+  font-size: 0.85rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+
+/* ---------- Tarjeta de evento ---------- */
+.evento {
+  padding: 0.8rem;
+  margin-bottom: 0.5rem;
+  background: var(--azul-suave);
+  border-left: 3px solid var(--verde);
+  border-radius: 4px;
+}
+
+.evento--error {
+  border-left-color: var(--rojo);
+}
+
+.evento--advertencia {
+  border-left-color: var(--amarillo);
+}
+
+.evento__tiempo {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--texto-tenue);
+  margin-bottom: 0.25rem;
+}
+
+.evento__contenido {
+  word-break: break-word;
+  white-space: pre-wrap;
+  font-family: "Courier New", monospace;
+  font-size: 0.85rem;
+}
+
+/* ---------- Grid de estado ---------- */
+.estado-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.estado-card {
+  padding: 1rem;
+  background: var(--azul-profundo);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+}
+
+.estado-card__titulo {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--texto-tenue);
+  margin-bottom: 0.4rem;
+}
+
+.estado-card__valor {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--oro);
+  word-break: break-all;
+}
+
+.estado-card__subtitulo {
+  font-size: 0.8rem;
+  color: var(--texto-tenue);
+  margin-top: 0.4rem;
+}
+
+/* ---------- Indicador de estado ---------- */
+.indicador {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+}
+
+.indicador--ok {
+  background: var(--verde);
+}
+
+.indicador--error {
+  background: var(--rojo);
+}
+
+.indicador--offline {
+  background: var(--amarillo);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .controles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .datos-tabla {
+    font-size: 0.8rem;
+  }
+
+  .datos-tabla th,
+  .datos-tabla td {
+    padding: 0.6rem 0.8rem;
+  }
+
+  .estado-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard {
+    padding: 0.75rem;
+  }
+
+  .controles {
+    grid-template-columns: 1fr;
+  }
+
+  .datos-tabla {
+    font-size: 0.75rem;
+  }
+
+  .datos-tabla th,
+  .datos-tabla td {
+    padding: 0.5rem;
+  }
+
+  .estado-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .estado-card__valor {
+    font-size: 1.3rem;
+  }
+}
+
+@media print {
+  .controles {
+    display: none;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .dashboard {
+    max-width: 100%;
+  }
+}
