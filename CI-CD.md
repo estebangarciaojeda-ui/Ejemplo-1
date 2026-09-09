@@ -53,7 +53,7 @@ En cuanto GitHub recibe tu `push` a la rama `main`, arranca solo el workflow
 **Fase 1 — Revisar (CI). Job `pruebas`.**
 
 1. GitHub **arranca una máquina virtual limpia** (Ubuntu) y **descarga tu código** en ella.
-2. **Instala Node.js 20** (hace falta para ejecutar la revisión).
+2. **Instala Node.js 22** (hace falta para ejecutar la revisión).
 3. **Ejecuta el script `tests/basic-checks.mjs`**, que comprueba **31 cosas
    concretas**. En lenguaje llano, verifica que:
    - los archivos imprescindibles existen (`index.html`, `styles.css`, `script.js`,
@@ -124,7 +124,7 @@ flowchart TD
     D -->|dispara| E[Workflow ci.yml]
 
     subgraph GHA [GitHub Actions]
-        E --> F[Job: pruebas<br/>ubuntu-latest + Node 20]
+        E --> F[Job: pruebas<br/>ubuntu-latest + Node 22]
         F --> F1[checkout]
         F1 --> F2[setup-node]
         F2 --> F3[node tests/basic-checks.mjs<br/>31 comprobaciones]
@@ -200,6 +200,8 @@ Historial hasta la puesta en marcha del pipeline:
 | `214ea2b` | Commit inicial: sitio + observabilidad. |
 | `d538e0e` | Alta del pipeline: `ci.yml` + `tests/basic-checks.mjs` + `.nojekyll`. |
 | `6194ca0` | Commit vacío para relanzar el despliegue tras activar Pages. |
+| `170b936` / `ccca3c0` | `CI-CD.md`: documentación del flujo. |
+| *(posterior)* | Limpieza de avisos: acciones a versión con Node 24, `node-version` a `22`, se quita `enablement: true`. |
 
 ---
 
@@ -248,12 +250,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Descargar el código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Preparar Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Ejecutar comprobaciones (sintaxis JS, estructura, accesibilidad, enlaces)
         run: node tests/basic-checks.mjs
@@ -261,8 +263,8 @@ jobs:
 
 | Paso | Acción | Resultado |
 | --- | --- | --- |
-| 1 | `actions/checkout@v4` | Clona el repo en el runner efímero. |
-| 2 | `actions/setup-node@v4` (Node 20) | Deja `node` disponible en el `PATH`. |
+| 1 | `actions/checkout@v5` | Clona el repo en el runner efímero. |
+| 2 | `actions/setup-node@v5` (Node 22) | Deja `node` disponible en el `PATH`. |
 | 3 | `node tests/basic-checks.mjs` | Ejecuta las pruebas. **Exit `0`** → job en verde. **Exit `1`** → job en rojo y el pipeline se para (el job de despliegue tiene `needs: pruebas`). |
 
 #### Qué valida `tests/basic-checks.mjs` (31 comprobaciones, sin dependencias)
@@ -300,21 +302,19 @@ RESULTADO: OK — 31 comprobaciones, 0 fallos
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Configurar GitHub Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
+        uses: actions/configure-pages@v6
 
       - name: Empaquetar el sitio (carpeta paginaCristianoRonaldo)
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: paginaCristianoRonaldo
 
       - name: Desplegar
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
       - name: Mostrar la URL publicada
         run: echo "Sitio publicado en ${{ steps.deployment.outputs.page_url }}"
@@ -330,24 +330,26 @@ Pasos:
 
 | # | Paso | Qué hace | Por qué |
 | --- | --- | --- | --- |
-| 1 | `actions/checkout@v4` | Vuelve a clonar el repo (job independiente = runner nuevo). | Necesita los archivos para empaquetarlos. |
-| 2 | `actions/configure-pages@v5` (`enablement: true`) | Consulta la API de Pages y, si el sitio no existe, intenta **activarlo**. Devuelve metadatos (URL base, etc.). | Evita el paso manual… **cuando la cuenta lo permite** (ver §4.1). |
-| 3 | `actions/upload-pages-artifact@v3` (`path: paginaCristianoRonaldo`) | Empaqueta esa carpeta en un artefacto `.tar.gz` llamado **`github-pages`** con los permisos que espera el servicio de Pages. | Es el "paquete" que Pages va a servir. Solo la subcarpeta → la web no incluye `tests/`, `.md`, etc. |
-| 4 | `actions/deploy-pages@v4` (`id: deployment`) | Pide un **token OIDC** (de ahí `id-token: write`), le dice al servicio de Pages "publica el artefacto `github-pages` de este run" y espera a que termine. Expone `outputs.page_url`. | Es el despliegue real. Sin servidores propios: Pages descarga el artefacto y lo sirve. |
+| 1 | `actions/checkout@v5` | Vuelve a clonar el repo (job independiente = runner nuevo). | Necesita los archivos para empaquetarlos. |
+| 2 | `actions/configure-pages@v6` | Lee la configuración de Pages del repo y expone metadatos (URL base, etc.). **Sin `enablement: true`**: no intenta crear el sitio (Pages ya está activado a mano). | Evita el error `Resource not accessible by integration` que daba el intento de creación por API. |
+| 3 | `actions/upload-pages-artifact@v5` (`path: paginaCristianoRonaldo`) | Empaqueta esa carpeta en un artefacto `.tar.gz` llamado **`github-pages`** con los permisos que espera el servicio de Pages. | Es el "paquete" que Pages va a servir. Solo la subcarpeta → la web no incluye `tests/`, `.md`, etc. |
+| 4 | `actions/deploy-pages@v5` (`id: deployment`) | Pide un **token OIDC** (de ahí `id-token: write`), le dice al servicio de Pages "publica el artefacto `github-pages` de este run" y espera a que termine. Expone `outputs.page_url`. | Es el despliegue real. Sin servidores propios: Pages descarga el artefacto y lo sirve. |
 | 5 | `echo …page_url` | Deja la URL en el log del run. | Trazabilidad. |
 
 ### 3.4 Acciones de terceros utilizadas
 
 | Acción | Versión | Función |
 | --- | --- | --- |
-| `actions/checkout` | `v4` | Clonar el repositorio en el runner. |
-| `actions/setup-node` | `v4` | Instalar Node.js 20. |
-| `actions/configure-pages` | `v5` | Detectar/activar Pages y exponer su configuración. |
-| `actions/upload-pages-artifact` | `v3` | Crear el artefacto `github-pages` con el contenido del sitio. |
-| `actions/deploy-pages` | `v4` | Publicar ese artefacto en el servicio de GitHub Pages. |
+| `actions/checkout` | `v5` | Clonar el repositorio en el runner. |
+| `actions/setup-node` | `v5` | Instalar Node.js 22. |
+| `actions/configure-pages` | `v6` | Leer la configuración de Pages y exponerla. |
+| `actions/upload-pages-artifact` | `v5` | Crear el artefacto `github-pages` con el contenido del sitio. |
+| `actions/deploy-pages` | `v5` | Publicar ese artefacto en el servicio de GitHub Pages. |
 
-> Todas están **ancladas a una versión mayor**. Para máxima reproducibilidad se
-> pueden fijar a un SHA concreto.
+> Todas están **ancladas a una versión mayor** y en una versión que se ejecuta
+> sobre **Node.js 24** (las `@v4`/`@v3`/`@v5-de-configure` anteriores corrían sobre
+> Node 20, ya retirado por GitHub, y generaban un aviso en cada run). Para máxima
+> reproducibilidad se pueden fijar a un SHA concreto.
 
 ### 3.5 Matriz de fallos y comportamiento
 
@@ -355,14 +357,22 @@ Pasos:
 | --- | --- | --- |
 | `node --check` (sintaxis) | Job `pruebas` en rojo; **no se despliega**. La web sigue con la versión anterior. | Log del paso 3; corregir el `.js` y volver a empujar. |
 | Comprobación estructural (ID duplicado, `alt` ausente, recurso inexistente, ancla rota…) | Igual que arriba: pipeline detenido. | La línea `FALLO …` del log dice exactamente qué. |
-| `configure-pages` (paso 2 del deploy) | Job `desplegar` en rojo; los pasos siguientes quedan `skipped`. | Casi siempre: **Pages no está activado** (ver §4.1). |
+| `configure-pages` (paso 2 del deploy) | Job `desplegar` en rojo; los pasos siguientes quedan `skipped`. | Que **Pages esté activado** con *Source: GitHub Actions* (ver §4.1). |
 | `deploy-pages` (paso 4) | Deploy en rojo. | Estado del servicio de Pages; permisos `pages: write` / `id-token: write`; reglas del *environment* `github-pages`. |
 | Todo verde | Web actualizada en 1–2 min. | — |
 
-Historial real: en el run del commit `d538e0e` el job `desplegar` **falló en
-`configure-pages`** porque Pages nunca se había activado en el repo. Tras poner
-*Source = GitHub Actions* (§4.1) y relanzar (commit `6194ca0`, run
-`34370294450`), **ambos jobs pasaron** y la web quedó publicada.
+Historial real:
+
+- **`d538e0e`** — el job `desplegar` **falló en `configure-pages`** porque Pages
+  nunca se había activado en el repo (`Get Pages site failed: Not Found`).
+- **`6194ca0`** (run `34370294450`) — tras poner *Source = GitHub Actions* (§4.1),
+  **ambos jobs pasaron** y la web quedó publicada. Aun así, mientras estuvo
+  `enablement: true`, cada run dejaba en las anotaciones el error
+  `Create Pages site failed: Resource not accessible by integration` (intento de
+  crear por API un sitio que ya existía).
+- **Limpieza posterior** — se quitó `enablement: true` (ya no hay intento de
+  creación → sin ese error) y se subieron las acciones a versiones sobre Node 24
+  (sin el aviso `Node.js 20 is deprecated`). Runs sin errores ni avisos.
 
 ---
 
@@ -373,10 +383,12 @@ Historial real: en el run del commit `d538e0e` el job `desplegar` **falló en
 **Settings → Pages → Build and deployment → Source: `GitHub Actions`.**
 
 - No hay que elegir rama ni carpeta: la fuente es el artefacto que sube el workflow.
-- Es un ajuste que **el workflow no siempre puede activar solo**. `configure-pages`
-  con `enablement: true` lo intenta, pero si la cuenta/organización no autoriza al
-  `GITHUB_TOKEN` a crear el sitio, el primer despliegue falla ahí. Una vez hecho el
-  cambio a mano, `enablement: true` queda como red de seguridad (idempotente).
+- **Hay que hacerlo a mano una vez.** Se probó a automatizarlo con
+  `actions/configure-pages` + `enablement: true`, pero el `GITHUB_TOKEN` del
+  workflow **no tiene permiso para crear el sitio de Pages** por API: devuelve
+  `Resource not accessible by integration`. Por eso el workflow **ya no** usa
+  `enablement: true` y da por hecho que este ajuste está puesto.
+- Una vez configurado, no hay que volver a tocarlo: cada `push` a `main` republica.
 
 ### 4.2 Cómo publica Pages
 
@@ -422,7 +434,7 @@ Patrón de *project page*: `https://<usuario>.github.io/<repositorio>/`.
  5. git push                            (a main)
  6. GitHub detecta el push y lanza el workflow "CI y despliegue a GitHub Pages".
  7. Job "pruebas":
-      - checkout  →  setup-node@20  →  node tests/basic-checks.mjs
+      - checkout  →  setup-node (Node 22)  →  node tests/basic-checks.mjs
       - si exit != 0  →  ⛔ FIN. La web NO cambia. Vuelves al paso 1.
  8. Job "desplegar"  (solo si el paso 7 fue verde y es push a main):
       - checkout
@@ -496,7 +508,8 @@ histórico también queda listado en *Settings → Environments → github-pages
 | Workflow | `.github/workflows/ci.yml` |
 | Pruebas | `tests/basic-checks.mjs` — 31 comprobaciones, sin dependencias |
 | Runner | `ubuntu-latest` |
-| Node | `20` |
+| Node (pruebas) | `22` |
+| Acciones | `checkout@v5`, `setup-node@v5`, `configure-pages@v6`, `upload-pages-artifact@v5`, `deploy-pages@v5` |
 | Carpeta publicada | `paginaCristianoRonaldo/` |
 | Disparadores | `push`→`main`, `pull_request`→`main`, `workflow_dispatch` |
 | Puerta de calidad | `desplegar` tiene `needs: pruebas` |

@@ -27,12 +27,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Descargar el código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Preparar Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Ejecutar comprobaciones (sintaxis JS, estructura, accesibilidad, enlaces)
         run: node tests/basic-checks.mjs
@@ -49,22 +49,22 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Descargar el código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Configurar GitHub Pages
-        uses: actions/configure-pages@v5
-        with:
-          # Intenta activar Pages automáticamente si aún no lo está.
-          enablement: true
+        # Pages ya está activado (Settings -> Pages -> Source: GitHub Actions).
+        # Sin 'enablement: true' esta acción solo lee la configuración existente
+        # y no intenta crear el sitio por API (que el GITHUB_TOKEN no puede).
+        uses: actions/configure-pages@v6
 
       - name: Empaquetar el sitio (carpeta paginaCristianoRonaldo)
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: paginaCristianoRonaldo
 
       - name: Desplegar
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
       - name: Mostrar la URL publicada
         run: echo "Sitio publicado en ${{ steps.deployment.outputs.page_url }}"
