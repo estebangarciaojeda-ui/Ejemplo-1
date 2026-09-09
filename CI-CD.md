@@ -11,6 +11,98 @@ proyecto **Ejemplo-1** (sitio estático sobre Cristiano Ronaldo).
 
 ---
 
+## 0. Explicación en lenguaje llano: qué se hace y por qué
+
+Esta sección cuenta, sin tecnicismos, **qué ocurre exactamente** desde que cambias
+algo en el sitio hasta que ese cambio se ve publicado en internet. Las secciones
+siguientes (1–8) son la versión detallada.
+
+### 0.1 La idea de fondo
+
+El proyecto es una web hecha **solo con archivos** (HTML, CSS, JavaScript e
+imágenes). No hay base de datos ni programa que "se ejecute en un servidor": basta
+con copiar esos archivos a un sitio que los sirva.
+
+Lo que se ha montado es una **cinta transportadora automática** (un *pipeline*) que
+hace ese trabajo sola y con una red de seguridad:
+
+> Cada vez que subes un cambio, una máquina de GitHub **revisa** que el sitio no
+> esté roto y, **solo si pasa la revisión**, lo **copia** a GitHub Pages, que es
+> quien lo publica en una dirección web pública.
+
+Si la revisión falla, **no se publica nada**: la web sigue mostrando la última
+versión que sí estaba bien. A esto se le llama *CI/CD*:
+
+- **CI (Integración Continua):** cada cambio se comprueba automáticamente.
+- **CD (Despliegue Continuo):** si la comprobación pasa, el cambio se publica solo.
+
+### 0.2 Qué haces tú (a mano)
+
+1. Editas los archivos dentro de `paginaCristianoRonaldo/` (por ejemplo, cambias un
+   texto de `index.html` o añades una foto a `assets/`).
+2. Guardas ese cambio en el historial del proyecto: `git add -A && git commit -m "..."`.
+3. Lo envías a GitHub: `git push`.
+
+Y ya está. A partir de aquí no tocas nada más; lo demás es automático.
+
+### 0.3 Qué hace la máquina (automático), paso a paso
+
+En cuanto GitHub recibe tu `push` a la rama `main`, arranca solo el workflow
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml). Hace lo siguiente, en orden:
+
+**Fase 1 — Revisar (CI). Job `pruebas`.**
+
+1. GitHub **arranca una máquina virtual limpia** (Ubuntu) y **descarga tu código** en ella.
+2. **Instala Node.js 20** (hace falta para ejecutar la revisión).
+3. **Ejecuta el script `tests/basic-checks.mjs`**, que comprueba **31 cosas
+   concretas**. En lenguaje llano, verifica que:
+   - los archivos imprescindibles existen (`index.html`, `styles.css`, `script.js`,
+     `observabilidad.*`);
+   - el JavaScript **no tiene errores de sintaxis** (equivale a `node --check`);
+   - la página está bien estructurada: **un solo** `<h1>` y las zonas semánticas
+     `<header>`, `<nav>`, `<main>`, `<footer>`;
+   - **no hay dos elementos con el mismo `id`**;
+   - **todos los enlaces internos** (`href="#algo"`) apuntan a una sección que existe;
+   - **todas las imágenes tienen texto alternativo** (`alt`), por accesibilidad;
+   - **todos los recursos que la página pide** (hojas de estilo, scripts, fotos)
+     **están realmente en el repositorio**;
+   - el módulo de observabilidad **cumple su contrato**: expone
+     `window.CR7Observability.getSnapshot()`, usa una clave de `localStorage` que
+     empieza por `cr7-observability`, y no arrastra el bug ya corregido.
+4. Si **una sola** de esas comprobaciones falla → **la cinta se detiene aquí**. No
+   se publica nada, el run sale en rojo indicando qué ha fallado, y **la web
+   pública no cambia**.
+
+**Fase 2 — Publicar (CD). Job `desplegar`.** *(solo si la Fase 1 fue verde y el cambio está en `main`)*
+
+5. GitHub arranca **otra máquina limpia** y vuelve a descargar el código.
+6. **Empaqueta únicamente la carpeta `paginaCristianoRonaldo/`** en un archivo
+   comprimido (el "artefacto"). Todo lo demás —este documento, la carpeta `tests/`,
+   la configuración— **se queda fuera**: no forma parte de la web.
+7. **Entrega ese paquete a GitHub Pages**, que lo descomprime y lo **publica en los
+   servidores de GitHub** con dirección `https://` y certificado automático.
+8. Escribe en el registro del run la **dirección final** de la web.
+
+### 0.4 El resultado
+
+Al cabo de **1–2 minutos**, tu cambio está visible para cualquiera en:
+
+**<https://estebangarciaojeda-ui.github.io/Ejemplo-1/>**
+
+(y el panel de observabilidad en `…/Ejemplo-1/observabilidad.html`).
+
+### 0.5 Por qué está montado así
+
+| Decisión | Motivo |
+| --- | --- |
+| La Fase 2 **no se ejecuta** si la Fase 1 falla (`needs: pruebas`) | Nada roto llega a producción. |
+| Todo parte de una **máquina limpia** cada vez | Es reproducible: no depende de cómo esté configurado tu ordenador. |
+| Se publica **solo `paginaCristianoRonaldo/`** | La web no expone documentación interna ni scripts de prueba. |
+| Lo alojan **GitHub Actions + GitHub Pages** | Cero servidores que mantener: nosotros solo aportamos los archivos y las reglas. |
+| Cada publicación queda ligada a un **`commit`** | Es trazable y se puede revertir con `git revert`. |
+
+---
+
 ## 1. Visión general
 
 Todo el ciclo es **sin servidor de aplicaciones y sin dependencias externas**: se
