@@ -1,0 +1,70 @@
+name: CI y despliegue a GitHub Pages
+
+# Se ejecuta al hacer push a main, en pull requests hacia main
+# y manualmente desde la pestaña Actions.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Permisos que necesita el despliegue a Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un solo despliegue a la vez; no se cancela uno en curso.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  # ---------- 1. Pruebas básicas ----------
+  pruebas:
+    name: Pruebas básicas
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Ejecutar comprobaciones (sintaxis JS, estructura, accesibilidad, enlaces)
+        run: node tests/basic-checks.mjs
+
+  # ---------- 2. Publicar en GitHub Pages ----------
+  desplegar:
+    name: Publicar en GitHub Pages
+    needs: pruebas
+    # Solo se publica en push a main; en pull requests solo se prueban.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          # Intenta activar Pages automáticamente si aún no lo está.
+          enablement: true
+
+      - name: Empaquetar el sitio (carpeta paginaCristianoRonaldo)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: paginaCristianoRonaldo
+
+      - name: Desplegar
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Mostrar la URL publicada
+        run: echo "Sitio publicado en ${{ steps.deployment.outputs.page_url }}"
